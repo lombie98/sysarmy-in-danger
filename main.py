@@ -11,7 +11,9 @@ ARDUINO_2_ADDRESS = 0x05 # I2C Address of Arduino 2
 I2Cbus = smbus.SMBus(1) 
  
 aSelect = input("Which Arduino (1-3): ") 
-bSelect = input("On or Off (on/off): ") 
+
+bSelect = raw_input("On or Off (on/off): ") 
+
  
 if aSelect == 1: 
   SlaveAddress = ARDUINO_1_ADDRESS 
