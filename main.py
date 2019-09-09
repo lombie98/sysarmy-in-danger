@@ -23,10 +23,7 @@ elif aSelect == 3:
   SlaveAddress = ARDUINO_3_ADDRESS 
 else: 
   # quit if you messed up 
-  quit() 
- 
-# also quit if you messed up 
-if bSelect != "on" or bSelect != "off": quit() 
+  quit()  
  
 BytesToSend = ConvertStringsToBytes(bSelect) 
 I2Cbus.write_i2c_block_data(SlaveAddress, 0x00, BytesToSend) 
