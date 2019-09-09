@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Vacaciones en Las Toninas!</title>
+        <script
+          src="https://code.jquery.com/jquery-3.4.1.js"
+          integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+          crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+
+        <script src="websocket.js"></script>
+    </head>
+    <body>
+        <h1>
+            Vacaciones en Las Toninas!
+        </h1>
+        <p>
+            Cansado del stress de la ciudad? De los autos y embotellamientos? De los microcortes de Internet?
+        </p>
+        <p>
+            Venite a Las Toninas! Donde los cortes de Internet no son micro, sino bieeeen macro.
+        </p>
+        <div class="dataContainer">
+        </div>
+        <div class="chartContainer" style="width:800px;height:400px">
+            <canvas id="loadChart"></canvas>
+        </div>
+    </body>
+</html>
