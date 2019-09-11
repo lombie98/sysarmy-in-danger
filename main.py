@@ -25,7 +25,7 @@ else:
   # quit if you messed up 
   quit()  
  
-BytesToSend = ConvertStringsToBytes(bSelect) 
+BytesToSend = ConvertStringToBytes(bSelect) 
 I2Cbus.write_i2c_block_data(SlaveAddress, 0x00, BytesToSend) 
 print("Sent " + SlaveAddress + " the " + bSelect + " command.") 
  
