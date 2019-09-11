@@ -12,7 +12,7 @@ I2Cbus = smbus.SMBus(1)
  
 aSelect = input("Which Arduino (1-3): ") 
 
-bSelect = input("On or Off (on/off): ") 
+bSelect = raw_input("On or Off (on/off): ") 
 
  
 if aSelect == 1: 
