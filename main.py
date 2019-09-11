@@ -34,5 +34,4 @@ def ConvertStringToBytes(src):
   converted = [] 
   for b in src: 
     converted.append(ord(b)) 
- 
   return converted
