@@ -2,7 +2,14 @@
 # Python Code 
  
 import smbus 
- 
+
+# This function converts a string to an array of bytes. 
+def ConvertStringToBytes(src): 
+  converted = [] 
+  for b in src: 
+    converted.append(ord(b)) 
+  return converted
+
 # Slave Addresses for Arduinos 
 ARDUINO_1_ADDRESS = 0x04 # I2C Address of Arduino 1 
 ARDUINO_2_ADDRESS = 0x05 # I2C Address of Arduino 2 
@@ -26,13 +33,7 @@ else:
   quit()  
  
 BytesToSend = ConvertStringToBytes(bSelect) 
+
 I2Cbus.write_i2c_block_data(SlaveAddress, 0x00, BytesToSend) 
+
 print("Sent " + SlaveAddress + " the " + bSelect + " command.") 
- 
-# This function converts a string to an array of bytes. 
-def ConvertStringToBytes(src): 
-  converted = [] 
-  for b in src: 
-    converted.append(ord(b)) 
- 
-  return converted
