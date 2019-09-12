@@ -3,21 +3,24 @@
 #include <Wire.h>;
  
 // Define the slave address of this device.
-#define SLAVE_ADDRESS 0x05
+#define SLAVE_ADDRESS 0x04
+int a=8;
  
 // string to store what the RPi sends
-String str_recieved_from_RPi = "";
+String strRPi = "";
  
 void setup() {
  
   // setup the LED
-  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(a, OUTPUT);
  
   // begin running as an I2C slave on the specified address
   Wire.begin(SLAVE_ADDRESS);
- 
+  // start serial for output
+  Serial.begin(9600);           
   // create event for receiving data
   Wire.onReceive(receiveData);
+  
 }
  
 void loop() {
@@ -25,19 +28,20 @@ void loop() {
 }
  
 void receiveData(int byteCount) {
- 
-  while ( Wire.available()) {
-    str_recieved_from_RPi += (char)Wire.read();
-  }
- 
+    char c;
+   while (Wire.available()) { // loop through all but the last
+    strRPi = Wire.read(); // receive byte as a character
+    Serial.print(strRPi);         // print the character
+   }
+    Serial.print(c);
   // turn on or off the LED
-  if (str_recieved_from_RPi == "on") {
-    digitalWrite(LED_BUILTIN, HIGH); 
+  if (strRPi == "on") {
+    digitalWrite(a, HIGH); 
   }
-  if (str_recieved_from_RPi == "off") {
-    digitalWrite(LED_BUILTIN, LOW);
+  if (strRPi == "off") {
+    digitalWrite(a, LOW);
   }
  
-  str_recieved_from_RPi = "";
+ // str_recieved_from_RPi = "";
  
 }

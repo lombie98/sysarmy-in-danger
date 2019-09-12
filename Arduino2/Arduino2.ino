@@ -4,7 +4,7 @@
  
 // Define the slave address of this device.
 #define SLAVE_ADDRESS 0x04
-
+//int a=13;
  
 // string to store what the RPi sends
 String str_recieved_from_RPi = "";
@@ -16,9 +16,10 @@ void setup() {
  
   // begin running as an I2C slave on the specified address
   Wire.begin(SLAVE_ADDRESS);
- 
+  Serial.begin(9600);           // start serial for output
   // create event for receiving data
   Wire.onReceive(receiveData);
+  
 }
  
 void loop() {
@@ -26,11 +27,14 @@ void loop() {
 }
  
 void receiveData(int byteCount) {
- 
-  while ( Wire.available()) {
-    str_recieved_from_RPi += (char)Wire.read();
-  }
- 
+ int b=0;
+ char c [];
+   while (Wire.available()) { // loop through all but the last
+    c [b] = Wire.read(); // receive byte as a character
+    Serial.print(c);// print the character
+   b++;
+   }
+   
   // turn on or off the LED
   if (str_recieved_from_RPi == "on") {
     digitalWrite(LED_BUILTIN, HIGH); 
