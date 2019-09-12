@@ -19,7 +19,7 @@ I2Cbus = smbus.SMBus(1)
  
 aSelect = input("Which Arduino (1-3): ") 
 
-bSelect = input("On or Off (on/off): ") 
+bSelect = raw_input("On or Off (on/off): ") 
 
  
 if aSelect == 1: 
@@ -34,6 +34,6 @@ else:
  
 BytesToSend = ConvertStringToBytes(bSelect) 
 
-I2Cbus.write_i2c_block_data(SlaveAddress, 0x00, BytesToSend) 
-
-print("Sent " + SlaveAddress + " the " + bSelect + " command.") 
+I2Cbus.write_i2c_block_data(SlaveAddress, 0x00 , BytesToSend) 
+print (bSelect)
+print("Sent " , SlaveAddress , " the " , bSelect , " command.") 
