@@ -7,7 +7,7 @@
 int a=8;
  
 // string to store what the RPi sends
-String strRPi = "";
+String str_recieved_from_RPi = "";
  
 void setup() {
  
@@ -28,20 +28,20 @@ void loop() {
 }
  
 void receiveData(int byteCount) {
-    char c;
+ 
    while (Wire.available()) { // loop through all but the last
-    strRPi = Wire.read(); // receive byte as a character
-    Serial.print(strRPi);         // print the character
+    char c = Wire.read(); // receive byte as a character
+    Serial.print(c);         // print the character
    }
-    Serial.print(c);
+   
   // turn on or off the LED
-  if (strRPi == "on") {
+  if (str_recieved_from_RPi == "on") {
     digitalWrite(a, HIGH); 
   }
-  if (strRPi == "off") {
+  if (str_recieved_from_RPi == "off") {
     digitalWrite(a, LOW);
   }
  
- // str_recieved_from_RPi = "";
+  str_recieved_from_RPi = "";
  
 }

@@ -1,7 +1,10 @@
 #include <TimerOne.h>
+#include <Wire.h>
 
 #define maxInputs 64
 #define COMMAND_LENGTH 128
+
+#define SLAVE_ADDRESS 0x04
 
 int timer_count = 0;
 int TIMER_NANOSECONDS = 500;
@@ -28,9 +31,18 @@ void setup() {
 
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
-
+// begin running as an I2C slave on the specified address
+  Wire.begin(SLAVE_ADDRESS);
+  // start serial for output
   Serial.begin(1000000);
   Serial.println("Program Started");
+  // create event for receiving data
+  Wire.onReceive(receiveData);
+
+
+}
+void loop() {
+  // nothing needed here since we're doing event based code
 }
 
 void start_game() {
@@ -66,7 +78,7 @@ void start_game() {
   Timer1.attachInterrupt(timer1_callback);
 }
 
-void loop() {
+void receiveData(int byteCount) {
   bool game_started = false;
   while(!game_started) {
     char command[COMMAND_LENGTH] = {'\0'};
@@ -85,8 +97,8 @@ void recvWithStartEndMarkers(char startMarker, char endMarker, char *receivedCha
     boolean newData = false;
 
     while (!newData) {
-    if (Serial.available() > 0) {
-        rc = Serial.read();
+    if (Wire.available() > 0) {
+        rc = Wire.read();
 
         if (recvInProgress == true) {
             if (rc != endMarker) {
@@ -165,6 +177,7 @@ bool _match_input(int pin, state_struct &state, int ticks) {
   }
   return result;
 }
+
 
 void send_status() {
   if (timer_count % 2000 == 0){

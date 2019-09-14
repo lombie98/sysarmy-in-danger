@@ -1,4 +1,5 @@
 #include <TimerOne.h>
+#include <Wire.h>
 
 #define maxOutputs 64
 #define COMMAND_LENGTH 128
