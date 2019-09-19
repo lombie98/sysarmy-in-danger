@@ -3,7 +3,7 @@
 
 #define maxOutputs 64
 #define COMMAND_LENGTH 128
-
+#define SLAVE_ADDRESS 0x05
 int timer_count = 0;
 int TIMER_NANOSECONDS = 500;
 

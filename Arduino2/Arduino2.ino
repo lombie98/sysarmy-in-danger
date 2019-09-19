@@ -27,13 +27,12 @@ void loop() {
 }
  
 void receiveData(int byteCount) {
- int b=0;
- char c [];
-   while (Wire.available()) { // loop through all but the last
-    c [b] = Wire.read(); // receive byte as a character
+ 
+   while (Wire.available()) 
+   { // loop through all but the last
+    char c = Wire.read(); // receive byte as a character
     Serial.print(c);// print the character
-   b++;
-   }
+     }
    
   // turn on or off the LED
   if (str_recieved_from_RPi == "on") {
