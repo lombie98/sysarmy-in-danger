@@ -125,17 +125,30 @@ void recvWithStartEndMarkers(char startMarker, char endMarker, char *receivedCha
 
 bool _process_received_command(char *command) {
   bool qty_done = false;
+  bool pos_array_done = false;
+  
+  int pos_array[maxInputs];
+
   char * strtokIndx; // this is used by strtok() as an index
   char directive[16];
   strtokIndx = strtok(command, ":");      // get the first part - the directive
   strcpy(directive, strtokIndx); // copy it to messageFromPC
+  
   if (!strcmp(directive, "conn_qty")) {
     Serial.println("Received conn_qty command");
     strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
     inputsQty = atoi(strtokIndx);
     qty_done = true;
   }
-  if (qty_done) {
+  
+  if (!strcmp(directive, "pos")) {
+    Serial.println("Received pos command");
+    strtokIndx = strtok(NULL, ",");
+    pos_index = atoi(strtokIndx);
+    pos_array_done = true;
+  }
+  
+  if (qty_done && pos_array_done) {
     return true;
   }
   return false;
