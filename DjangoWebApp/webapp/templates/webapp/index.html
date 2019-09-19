@@ -1,0 +1,25 @@
+{% extends "webapp/base.html" %}
+{% load static crispy_forms_tags %}
+
+{% block css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'webapp/css/index.css' %}" type="text/css">
+{% endblock css %}
+
+{% block maincontainer %}
+<div class="index-container">
+    <h1 class="text-center">
+        Aloha Terrícolas!
+    </h1>
+    <p>
+        Bienvenidos a Las Toninas!
+    </p>
+    <p>
+        Si esperaban encontrar una playa, pues se equivocaron...
+    </p>
+    <div class="formContainer jumbotron">
+        <h3><b>Comenzar a jugar</b></h3>
+        {% crispy form form.helper %}
+    </div>
+</div>
+{% endblock maincontainer %}

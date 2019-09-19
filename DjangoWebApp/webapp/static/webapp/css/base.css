@@ -1,0 +1,25 @@
+html {
+    font-size: 14px;
+}
+
+main {
+    padding: 1em;
+}
+
+.footer {
+    color: rgba(240, 240, 240, 1);
+    background-color: rgba(40, 40, 40, 1);
+}
+
+.footer > .container {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+code {
+    font-size: 80%;
+}
+
+.asteriskField {
+    display: none;
+}
