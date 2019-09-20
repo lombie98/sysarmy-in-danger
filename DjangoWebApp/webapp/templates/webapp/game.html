@@ -4,17 +4,63 @@
 {% block css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'webapp/css/game.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'webapp/css/color_anim.css' %}" type="text/css">
 {% endblock css %}
 
 {% block js %}
 {{ block.super }}
-<script src="{% static 'webapp/js/game.js' %}"></script>
+<script type="text/javascript" src="{% static 'webapp/lib/jquery-backward-timer.js' %}"></script>
+<script type="text/javascript" src="{% static 'webapp/js/game.js' %}"></script>
 {% endblock js %}
 
 {% block maincontainer %}
 <div class="index-container">
-    <h1 class="text-center">
-        Recuperá el Datacenter!
-    </h1>
+    <div class="preStart text-center">
+        <div id="div_id_conn_qty">
+            <label for="id_conn_qty" class="col-form-label">Conexiones a Realizar:</label>
+            <input type="text" name="conn_qty" maxlength="255" class="textinput textInput" id="id_conn_qty">
+        </div>
+        <div id="div_id_slot_qty">
+            <label for="id_slot_qty" class="col-form-label">Cantidad Total de Bocas:</label>
+            <input type="text" name="slot_qty" maxlength="255" class="textinput textInput" id="id_slot_qty">
+        </div>
+        <div id="div_id_sender_blacklist">
+            <label for="id_sender_blacklist" class="col-form-label">Bocas del Emisor Inutilizables: (separado por coma)</label>
+            <input type="text" name="blacklist" maxlength="255" class="textinput textInput" id="id_sender_blacklist">
+        </div>
+        <div id="div_id_receiver_blacklist">
+            <label for="id_receiver_blacklist" class="col-form-label">Bocas del Receptor Inutilizables: (separado por coma)</label>
+            <input type="text" name="blacklist" maxlength="255" class="textinput textInput" id="id_receiver_blacklist">
+        </div>
+        <div id="div_id_timeout">
+            <label for="id_timeout" class="col-form-label">Tiempo máximo de Juego (en segundos):</label>
+            <input type="text" name="timeout" maxlength="255" class="textinput textInput" id="id_timeout">
+        </div>
+        <button name="start" class="btnPreStart btn btn-primary">Start</button>
+    </div>
+    <div class="gameBlock d-none">
+        <h1 class="text-center">
+            Recuperá el Datacenter!
+        </h1>
+        <div class="backwardTimer text-center">
+        </div>
+        <div class="Timer text-center d-none">
+            <div id="timedate">
+                <a id="m">00</a>:
+                <a id="s">00</a>:
+                <a id="mi">000</a>
+            </div>
+        </div>
+        <div class="gameConfigContainer">
+        </div>
+        <div class="gameStatusContainer">
+        </div>
+    </div>
+    <div class="timeOut text-center d-none">
+        <h1>Perdiste Campeón!</h1>
+    </div>
+    <div class="Win awesomeText text-center d-none">
+        <h1>Bien ahí maestro!</h1>
+    </div>
 </div>
 {% endblock maincontainer %}

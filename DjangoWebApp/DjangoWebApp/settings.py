@@ -71,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'DjangoWebApp.wsgi.application'
+# WSGI_APPLICATION = 'DjangoWebApp.wsgi.application'
 ASGI_APPLICATION = 'DjangoWebApp.routing.application'
 
 

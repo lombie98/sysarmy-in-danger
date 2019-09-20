@@ -10,4 +10,5 @@ urlpatterns = [
     path('thanks', views.Thanks.as_view()),
     path('game', views.GameView.as_view()),
     path('scoreboard', views.ScoreboardView.as_view()),
+    path('test', views.GameView.as_view()),
 ]
