@@ -1,0 +1,26 @@
+{% extends "webapp/base.html" %}
+
+{% block maincontainer %}
+<div class="thanks-container">
+    <h1 class="text-center">
+        Como anduvo eso??? Acá están las posiciones...
+    </h1>
+    <div class="table-responsive-sm">
+    <table class="table table-light table-striped table-hover">
+        <thead class="thead-dark">
+            <th>Nombre</th>
+            <th>Tiempo</th>
+            <th>Fecha de jugada</th>
+        </thead>
+        <tbody>
+            {% for score in object_list %}
+            <tr>
+                <td>{{ score.name }}</td>
+                <td>{{ score.experience }}</td>
+            </tr> 
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock maincontainer %}

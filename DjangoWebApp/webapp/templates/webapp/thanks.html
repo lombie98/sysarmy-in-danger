@@ -1,0 +1,14 @@
+{% extends "webapp/base.html" %}
+
+{% block maincontainer %}
+<div class="thanks-container col-12">
+    <div class="col-12">
+        <h1 class="text-center">
+            Gracias campeón! <i class="fa fa-hand-rock-o" aria-hidden="true"></i>
+        </h1>
+    </div>
+    <div class="col-12">
+        <a class="btn btn-primary " href="{% url 'webapp:index' %}">Volver a casa</a>
+    </div>
+</div>
+{% endblock maincontainer %}
