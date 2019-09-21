@@ -28,29 +28,26 @@ mapeo_posiciones = {
 
 
 def _receive_data(self):
-    while 1:
-        try:
-            data = I2Cbus.read_i2c_block_data(self.address, 32)
-            if data == 0:
-                break
-            self.received_queue.put(''.join(
-                map(chr, filter(lambda x: x != 255, data))
-            ))
-        except Exception as e:
-            print(e)
-        time.sleep(.3)
-        if self.stop_event.is_set():
-            """self.stop_event.unset()
-            """
-            break
+    self.send("$status;")
+    res = []
+    for i in range(self.conn_qty):
+        byte = I2Cbus.read_byte(self.address)
+        char = chr(byte)
+        if char == 'E':
+            return 'Err'
+        res.append(char)
+    return ''.join(res)
 
 
 class ArduinoController:
     def __init__(self, address, conn_qty, conn_layout, *args, **kwargs):
+        if address == 'receiver':
+            address = ARDUINO_1_ADDRESS
+        elif address == 'sender':
+            address = ARDUINO_2_ADDRESS
         self.conn_layout = conn_layout
         self.address = address
         self.conn_qty = conn_qty
-        self.posiciones = []
         self.received_queue = queue.Queue()
         self.stop_event = Event()
 
@@ -60,20 +57,20 @@ class ArduinoController:
             converted.append(ord(b))
         return converted
 
-    def receive(self, timeout=100):
-        time.sleep(.2)
-        receive_thread = Thread(target=_receive_data, args=[self])
-        receive_thread.start()
-        receive_thread.join(timeout=timeout/100)
-        self.stop_event.set()
-        try:
-            res = self.received_queue.get(block=False)
-        except Exception:
-            res = ''
-        return res
+    def receive(self, timeout=1):
+        time.sleep(.01)
+        # receive_thread = Thread(target=_receive_data, args=[self])
+        # receive_thread.start()
+        # receive_thread.join(timeout=timeout)
+        # self.stop_event.set()
+        # try:
+        #     res = self.received_queue.get(block=False)
+        # except Exception:
+        #     res = ''
+        return _receive_data(self)
 
     def send(self, data):
-        time.sleep(.2)
+        time.sleep(.01)
         try:
             data = str(data)
         except Exception:
@@ -96,15 +93,15 @@ class ArduinoController:
         return res
 
     @property
-    def comando_posiciones(self):
+    def comando_conn_layout(self):
         res = False
-        if hasattr(self, 'posiciones'):
-            res = "$pos:%s;" % str(self.posiciones).\
+        if hasattr(self, 'conn_layout'):
+            res = "$pos:%s;" % str(self.conn_layout).\
                 strip('[').strip(']').replace(' ', '')
         return res
 
     def start(self):
         print(self.comando_conn_qty)
         self.send(self.comando_conn_qty)
-        print(self.comando_posiciones)
-        self.send(self.comando_posiciones)
+        print(self.comando_conn_layout)
+        self.send(self.comando_conn_layout)

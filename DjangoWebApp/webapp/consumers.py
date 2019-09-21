@@ -24,7 +24,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                 if v
             }
             game = ToninasGame(
-                test=True,
                 **options,
             )
             self.GameInstance = game

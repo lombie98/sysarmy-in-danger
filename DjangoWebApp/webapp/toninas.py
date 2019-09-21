@@ -95,7 +95,7 @@ class ToninasGame:
                 'signal': 'status',
                 'value': self.conn_state,
             }))
-            if all(self.conn_state):
+            if self.conn_state and isinstance(self.conn_state, list) and all(self.conn_state):
                 await socket.send(json.dumps({
                     'signal': 'win',
                 }))
@@ -109,11 +109,21 @@ class ToninasGame:
     def compute_state(self):
         if self.test:
             self._compute_retry += 1
-            if self._compute_retry > 10:
+            if self._compute_retry > 1:
                 self.conn_state = [randint(0, 1) for _ in range(self.conn_qty)]
                 self._compute_retry = 0
         else:
-            self.conn_state = self.receiver.receive()
+            try:
+                received_string = self.receiver.receive()
+                if received_string == 'Err':
+                    print('Error')
+                else:
+                    self.conn_state = [int(x) for x in received_string]
+            except Exception as e:
+                print("Could not parse response from Arduino. Error was: %s" % str(e))
+                self.receiver.start()
+                self.conn_state = [0] * self.conn_qty
+        print("Connection State: %s" % self.conn_state)
 
     @property
     def config(self):
