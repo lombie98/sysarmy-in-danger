@@ -7,7 +7,7 @@
 int timer_count = 0;
 int TIMER_NANOSECONDS = 500;
 
-int outputsQty;
+int outputsQty = 8;
 
 // State
 bool outputStates[maxOutputs];
@@ -20,6 +20,7 @@ int testing_outputs[8] = {22,24,26,28,30,32,34,36};
 void setup() {
   Serial.begin(1000000);
   Serial.println("Program Started");
+  start_game();
 }
 
 void start_game() {
@@ -55,15 +56,15 @@ void start_game() {
 }
 
 void loop() {
-  bool game_started = false;
-  while(!game_started) {
-    char command[COMMAND_LENGTH] = {'\0'};
-    recvWithStartEndMarkers('$', ';', command);
-    if (command[0] != '\0') {
-      game_started = _process_received_command(command);
-    }
-  }
-  start_game();
+//  bool game_started = false;
+//  while(!game_started) {
+//    char command[COMMAND_LENGTH] = {'\0'};
+//    recvWithStartEndMarkers('$', ';', command);
+//    if (command[0] != '\0') {
+//      game_started = _process_received_command(command);
+//    }
+//  }
+//  start_game();
 }
 
 void recvWithStartEndMarkers(char startMarker, char endMarker, char *receivedChars) {
