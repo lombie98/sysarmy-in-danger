@@ -1,2 +1,5 @@
 channels
 django-crispy-forms
+smbus
+gunicorn
+uvicorn

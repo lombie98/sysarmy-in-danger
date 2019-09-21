@@ -5,6 +5,8 @@ from threading import Thread, Event
 
 from random import randint
 
+from .arduino_controller import ArduinoController
+
 
 class ToninasGame:
     def __init__(self, conn_qty=8, slot_qty=32, sender_blacklist=False,
@@ -59,6 +61,14 @@ class ToninasGame:
         self.receiver_pos = self.gen_pos_array(
             self.conn_qty, self.slot_qty, self.receiver_blacklist
         )
+        self.sender = ArduinoController(
+            'sender', self.conn_qty, self.sender_pos
+        )
+        self.receiver = ArduinoController(
+            'receiver', self.conn_qty, self.receiver_pos
+        )
+        self.sender.start()
+        self.receiver.start()
         self.conn_state = [False] * self.conn_qty
 
     def stop(self):
@@ -97,10 +107,13 @@ class ToninasGame:
         return False
 
     def compute_state(self):
-        self._compute_retry += 1
-        if self._compute_retry > 10:
-            self.conn_state = [randint(0, 1) for _ in range(self.conn_qty)]
-            self._compute_retry = 0
+        if self.test:
+            self._compute_retry += 1
+            if self._compute_retry > 10:
+                self.conn_state = [randint(0, 1) for _ in range(self.conn_qty)]
+                self._compute_retry = 0
+        else:
+            self.conn_state = self.receiver.receive()
 
     @property
     def config(self):
