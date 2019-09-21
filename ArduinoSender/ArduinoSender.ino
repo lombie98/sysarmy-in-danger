@@ -4,10 +4,11 @@
 #define maxOutputs 64
 #define COMMAND_LENGTH 128
 #define SLAVE_ADDRESS 0x05
+
 int timer_count = 0;
 int TIMER_NANOSECONDS = 500;
 
-int outputsQty = 8;
+int outputsQty;// = 8;
 
 // State
 bool outputStates[maxOutputs];
@@ -17,17 +18,28 @@ int outputChannels[maxOutputs];
 int outputs[maxOutputs];
 int testing_outputs[8] = {22,24,26,28,30,32,34,36};
 
+bool qty_done = false;
+bool pos_array_done = false;
+bool game_started = false;
+
 void setup() {
-  Serial.begin(1000000);
-  Serial.println("Program Started");
-  start_game();
+  // Serial.begin(1000000);
+  // Serial.println("Program Started");
+
+  Wire.begin(SLAVE_ADDRESS);
+  Wire.setClock(400000);
+  Wire.onReceive(receiveData);
+
+  // Init Timer
+  Timer1.initialize(TIMER_NANOSECONDS);
+  Timer1.attachInterrupt(timer1_callback);
 }
 
 void start_game() {
   // Testing HardCoded
   for (int i = 0; i < outputsQty; i++) {
     outputs[i] = testing_outputs[i];
-    outputChannels[i] = (i+1)*10;
+    outputChannels[i] = (i * 10) + 100;
   }
 
   // Set Outputs as OUT
@@ -36,7 +48,10 @@ void start_game() {
     int out = outputs[i];
     pinMode(out, OUTPUT);
   }
+  game_started = true;
+  // Serial.println("Started");
 
+  /*
   Serial.println("Game Config:");
   Serial.print("Output Qty: "); Serial.println(outputsQty);
   Serial.print("Channels: ");
@@ -49,22 +64,23 @@ void start_game() {
     Serial.print(outputs[i]); Serial.print(", ");
   }
   Serial.println("");
+  */
 
-  // Init Timer
-  Timer1.initialize(TIMER_NANOSECONDS);
-  Timer1.attachInterrupt(timer1_callback);
 }
 
 void loop() {
-//  bool game_started = false;
-//  while(!game_started) {
-//    char command[COMMAND_LENGTH] = {'\0'};
-//    recvWithStartEndMarkers('$', ';', command);
-//    if (command[0] != '\0') {
-//      game_started = _process_received_command(command);
-//    }
-//  }
-//  start_game();
+  delay(100);
+}
+
+void receiveData(int byteCount) {
+  char command[COMMAND_LENGTH] = {'\0'};
+
+  recvWithStartEndMarkers('$', ';', command);
+  if (command[0] != '\0') {
+    // Serial.println(command);
+    _process_received_command(command);
+  }
+
 }
 
 void recvWithStartEndMarkers(char startMarker, char endMarker, char *receivedChars) {
@@ -72,10 +88,13 @@ void recvWithStartEndMarkers(char startMarker, char endMarker, char *receivedCha
     static byte ndx = 0;
     char rc;
     boolean newData = false;
+    int retry = 0;
 
-    while (!newData) {
-    if (Serial.available() > 0) {
-        rc = Serial.read();
+
+    while (!newData && retry < 1000) {
+    retry ++;
+    if (Wire.available() > 0) {
+        rc = Wire.read();
 
         if (recvInProgress == true) {
             if (rc != endMarker) {
@@ -101,27 +120,27 @@ void recvWithStartEndMarkers(char startMarker, char endMarker, char *receivedCha
 }
 
 bool _process_received_command(char *command) {
-  bool qty_done = false;
   char * strtokIndx; // this is used by strtok() as an index
   char directive[16];
   strtokIndx = strtok(command, ":");      // get the first part - the directive
   strcpy(directive, strtokIndx); // copy it to messageFromPC
   if (!strcmp(directive, "conn_qty")) {
-    Serial.println("Received conn_qty command");
+    // Serial.println("Received conn_qty command");
     strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
     outputsQty = atoi(strtokIndx);
     qty_done = true;
+    pos_array_done = true;
   }
-  if (qty_done) {
-    return true;
-  }
-  return false;
 }
 
 void timer1_callback() {
+  if ((! game_started) && qty_done && pos_array_done) {
+    start_game();
+  }
   // The sending of the signals should be in a loop, configurable from the RasPi
   for (int i = 0; i < outputsQty; i++) {
     if (timer_count % outputChannels[i] == 0) {
+      // Serial.println("Sending");
       digitalWrite(outputs[i], outputStates[i]);
       outputStates[i] = !outputStates[i];
     }

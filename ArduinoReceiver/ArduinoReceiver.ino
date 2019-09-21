@@ -3,17 +3,16 @@
 
 #define maxInputs 64
 #define COMMAND_LENGTH 128
-
 #define SLAVE_ADDRESS 0x04
 
 int timer_count = 0;
 int TIMER_NANOSECONDS = 500;
 
-int inputsQty = 0;
+int inputsQty;
 
 bool inputConnState[maxInputs];
 // Channels should be received from the RasPi and synced with other Arduino
-int inputChannels[maxInputs];
+int inputChannels[maxInputs]; 
 // Ins
 int inputs[maxInputs];
 int testing_inputs[8] = {22, 24, 26, 28, 30, 32, 34, 36};
@@ -29,18 +28,22 @@ state_struct inputStates[maxInputs];
 
 bool qty_done = false;
 bool pos_array_done = false;
+bool game_started = false;
 
+char stateString[maxInputs] = {'\0'};
+int statusCounter = 0;
 
 void setup() {
+  //pinMode(LED_BUILTIN, OUTPUT);
+  //digitalWrite(LED_BUILTIN, LOW);
 
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
-  // begin running as an I2C slave on the specified address
-  Wire.begin(SLAVE_ADDRESS);
+  
   // start serial for output
-  Serial.begin(1000000);
-  Serial.println("Program Started");
-  // create event for receiving data
+  // Serial.begin(1000000);
+  // Serial.println("Program Started");
+
+  Wire.begin(SLAVE_ADDRESS);
+  Wire.setClock(400000);
   Wire.onReceive(receiveData);
   Wire.onRequest(sendData);
 
@@ -49,15 +52,24 @@ void setup() {
   Timer1.attachInterrupt(timer1_callback);
 }
 void loop() {
-
-
+  delay(100);
+  if (qty_done && pos_array_done && inputsQty) {
+    for (int i = 0; i < inputsQty; i++) {
+      if (inputConnState[i]) {
+        stateString[i] = '1';
+      } else {
+        stateString[i] = '0';
+      }
+    }
+    stateString[inputsQty] = '\0';
+  }
 }
 
 void start_game() {
   // Testing HardCoded
   for (int i = 0; i < inputsQty; i++) {
     inputs[i] = testing_inputs[i];
-    inputChannels[i] = (i + 1) * 10;
+    inputChannels[i] = (i * 10) + 100;
   }
 
   // Set Inputs as IN
@@ -68,6 +80,9 @@ void start_game() {
     pinMode(in, INPUT_PULLUP);
   }
 
+  game_started = true;
+
+  /*
   Serial.println("Game Config:");
   Serial.print("Input Qty: "); Serial.println(inputsQty);
   Serial.print("Channels: ");
@@ -80,24 +95,20 @@ void start_game() {
     Serial.print(inputs[i]); Serial.print(", ");
   }
   Serial.println("");
-
+  */
+  
 }
 
 
 void sendData() {
   if (qty_done && pos_array_done) {
-    char string[inputsQty];
-    for (int i = 0; i < inputsQty; i++) {
-      if (inputConnState[i]) {
-        string[i] = '1';
-      } else {
-        string[i] = '0';
-      }
+    Wire.write(stateString[statusCounter]);
+    statusCounter++;
+    if (statusCounter > inputsQty) {
+      statusCounter = 0;
     }
-    string[inputsQty] = '\0';
-    Wire.write(string);
   } else {
-    Wire.write("Nope");
+    Wire.write('E');
   }
 }
 
@@ -156,14 +167,15 @@ void _process_received_command(char *command) {
   char directive[16];
   strtokIndx = strtok(command, ":");      // get the first part - the directive
   strcpy(directive, strtokIndx); // copy it to messageFromPC
+  if (!strcmp(directive, "status")) {
+    statusCounter = 0;
+  }
   if (!strcmp(directive, "conn_qty")) {
-    Serial.println("Received conn_qty command");
     strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
     inputsQty = atoi(strtokIndx);
     qty_done = true;
   }
   else if (!strcmp(directive, "pos")) {
-    Serial.println("Received pos command");
     strtokIndx = strtok(NULL, ",");
     pos_index = atoi(strtokIndx);
     pos_array_done = true;
@@ -194,14 +206,24 @@ bool _match_input(int pin, state_struct &state, int ticks) {
     }
     state.Low ++;
   }
-
+  if (state.High > 2000) {
+    state.High = 0; 
+  }
+  if (state.Low > 2000) {
+    state.Low = 0;
+  }
+  /*
+  Serial.print(state.Low);
+  Serial.print(" ,");
+  Serial.println(state.High);
+  */
   if (ticks - 2 <= state.LastHigh && state.LastHigh <= ticks + 2 &&
       ticks - 2 <= state.LastLow && state.LastLow <= ticks + 2 &&
       state.High < ticks + 5 && state.Low < ticks + 5) {
-    digitalWrite(LED_BUILTIN, HIGH);
+    // digitalWrite(LED_BUILTIN, HIGH);
     result = true;
   } else {
-    digitalWrite(LED_BUILTIN, LOW);
+    // digitalWrite(LED_BUILTIN, LOW);
     result = false;
   }
   return result;
@@ -224,21 +246,15 @@ void send_status() {
 
 void timer1_callback() {
 
-
-  if (!(qty_done && pos_array_done) && (timer_count % 400 == 0)) {
-    Serial.print(qty_done);
-    Serial.print(", ");
-    Serial.println(pos_array_done);
-
-    if (qty_done && pos_array_done) {
-      Serial.println("Starting Game! Yay!");
-      start_game();
-    }
+  if ((! game_started) && qty_done && pos_array_done) {
+    start_game();
   }
+  /*
   if (qty_done && pos_array_done && (timer_count % 60 == 0)) {
-    check_connections();
     send_status();
   }
+  */
+  check_connections();
 
   // Timer Counter HealthCheck
   prevent_timer_overflow();
