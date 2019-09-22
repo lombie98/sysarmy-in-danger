@@ -27,24 +27,15 @@ mapeo_posiciones = {
 }
 
 
-def _receive_data(self):
-    self.send("$status;")
-    res = []
-    for i in range(self.conn_qty):
-        byte = I2Cbus.read_byte(self.address)
-        char = chr(byte)
-        if char == 'E':
-            return 'Err'
-        res.append(char)
-    return ''.join(res)
-
-
 class ArduinoController:
     def __init__(self, address, conn_qty, conn_layout, *args, **kwargs):
+        self.name = 'Unknown'
         if address == 'receiver':
             address = ARDUINO_1_ADDRESS
+            self.name = 'Receiver'
         elif address == 'sender':
             address = ARDUINO_2_ADDRESS
+            self.name = 'Sender'
         self.conn_layout = conn_layout
         self.address = address
         self.conn_qty = conn_qty
@@ -59,7 +50,7 @@ class ArduinoController:
 
     def receive(self, timeout=1):
         time.sleep(.01)
-        # receive_thread = Thread(target=_receive_data, args=[self])
+        # receive_thread = Thread(target=self._receive_data, args=[])
         # receive_thread.start()
         # receive_thread.join(timeout=timeout)
         # self.stop_event.set()
@@ -67,7 +58,18 @@ class ArduinoController:
         #     res = self.received_queue.get(block=False)
         # except Exception:
         #     res = ''
-        return _receive_data(self)
+        return self._receive_data()
+
+    def _receive_data(self):
+        self.send("$status;")
+        res = []
+        for i in range(self.conn_qty):
+            byte = I2Cbus.read_byte(self.address)
+            char = chr(byte)
+            if char == 'E':
+                return 'Err'
+            res.append(char)
+        return ''.join(res)
 
     def send(self, data):
         time.sleep(.01)
@@ -82,7 +84,7 @@ class ArduinoController:
                 self.address, 0x00, bdata)
             return res
         except Exception as e:
-            print("Could not send %s to %s" % (data, self))
+            print("Could not send %s to %s" % (data, self.name))
             print(str(e))
 
     @property

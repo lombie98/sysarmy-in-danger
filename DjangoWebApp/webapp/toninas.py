@@ -86,25 +86,36 @@ class ToninasGame:
 
     async def _run(self, socket):
         start_time = now = time.time()
-        while now - start_time < self.timeout and not self.ended.isSet():
-            now = time.time()
-            print('Playing game for %.4f seconds' % (now - start_time))
-            await asyncio.sleep(.05)
+        interval = 0
+        last_interval = 0
+        while interval < self.timeout and not self.ended.isSet():
+            if (interval - last_interval) > 2:
+                last_interval = interval
+                print('Playing game for %.4f seconds' % (interval))
+            await asyncio.sleep(.001)
             self.compute_state()
             await socket.send(json.dumps({
                 'signal': 'status',
                 'value': self.conn_state,
             }))
+            now = time.time()
+            interval = now - start_time
             if self.conn_state and isinstance(self.conn_state, list) and all(self.conn_state):
                 await socket.send(json.dumps({
                     'signal': 'win',
                 }))
+                self.restart()
                 break
         else:
             await socket.send(json.dumps({
                 'signal': 'timeout',
             }))
+            self.restart()
         return False
+
+    def restart(self):
+        self.sender.send("$restart:1;")
+        self.receiver.send("$restart:1;")
 
     def compute_state(self):
         if self.test:
@@ -123,7 +134,6 @@ class ToninasGame:
                 print("Could not parse response from Arduino. Error was: %s" % str(e))
                 self.receiver.start()
                 self.conn_state = [0] * self.conn_qty
-        print("Connection State: %s" % self.conn_state)
 
     @property
     def config(self):

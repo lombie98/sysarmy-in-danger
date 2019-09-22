@@ -14,3 +14,7 @@
     width: 30%;
     font-size: 3em;
 }
+
+#t_div {
+    display: inline-block;
+}
