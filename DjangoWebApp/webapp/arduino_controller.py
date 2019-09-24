@@ -48,28 +48,20 @@ class ArduinoController:
             converted.append(ord(b))
         return converted
 
-    def receive(self, timeout=1):
-        time.sleep(.01)
-        # receive_thread = Thread(target=self._receive_data, args=[])
-        # receive_thread.start()
-        # receive_thread.join(timeout=timeout)
-        # self.stop_event.set()
-        # try:
-        #     res = self.received_queue.get(block=False)
-        # except Exception:
-        #     res = ''
-        return self._receive_data()
-
-    def _receive_data(self):
-        self.send("$status;")
-        res = []
-        for i in range(self.conn_qty):
-            byte = I2Cbus.read_byte(self.address)
-            char = chr(byte)
-            if char == 'E':
-                return 'Err'
-            res.append(char)
-        return ''.join(res)
+    def receive(self, premsg, length=0, timeout=1):
+        try:
+            self.send(premsg)
+            time.sleep(.001)
+            res = []
+            for i in range(length or self.conn_qty):
+                byte = I2Cbus.read_byte(self.address)
+                char = chr(byte)
+                if char == 'E':
+                    return 'Err'
+                res.append(char)
+            return ''.join(res)
+        except Exception:
+            return ''
 
     def send(self, data):
         time.sleep(.01)
@@ -107,3 +99,8 @@ class ArduinoController:
         self.send(self.comando_conn_qty)
         print(self.comando_conn_layout)
         self.send(self.comando_conn_layout)
+
+    def health_check(self):
+        self.hc = self.receive("$health_check:1;", length=1)
+        if self.hc != "Y":
+            self.start()

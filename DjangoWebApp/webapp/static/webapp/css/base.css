@@ -23,3 +23,8 @@ code {
 .asteriskField {
     display: none;
 }
+
+.HC {
+    font-size: 3em;
+    display: inline-block;
+}

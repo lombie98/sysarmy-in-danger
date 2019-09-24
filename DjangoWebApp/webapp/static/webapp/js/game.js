@@ -59,6 +59,9 @@ function wsMessageReceived(ev) {
         case "status":
             refreshStatus(data.value);
             break;
+        case "health_check":
+            healthCheck(data.value);
+            break;
         case "win":
             renderWin();
             break;
@@ -85,6 +88,23 @@ function renderConfig(state) {
         newLi.html(senVal + " -> " + recVal);
         newLi.appendTo(confList);
     }
+}
+
+function healthCheck(state) {
+    var SenderStatus = $(".SenderStatus");
+    var ReceiverStatus = $(".ReceiverStatus");
+    _setState(SenderStatus, state.sender);
+    _setState(ReceiverStatus, state.receiver);
+}
+
+function _setState (cont, st) {
+    var color = "red";
+    if (st === "Y") {
+        color = "green";
+    } else if (st === "N") {
+        color = "red";
+    }
+    cont.css("color", color);
 }
 
 function refreshStatus(state) {

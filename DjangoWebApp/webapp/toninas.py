@@ -69,6 +69,8 @@ class ToninasGame:
         )
         self.sender.start()
         self.receiver.start()
+        self.sender.health_check()
+        self.receiver.health_check()
         self.conn_state = [False] * self.conn_qty
 
     def stop(self):
@@ -88,7 +90,19 @@ class ToninasGame:
         start_time = now = time.time()
         interval = 0
         last_interval = 0
+        last_hc_interval = 0
         while interval < self.timeout and not self.ended.isSet():
+            if (interval - last_hc_interval) > 0.5:
+                self.sender.health_check()
+                self.receiver.health_check()
+                last_hc_interval = interval
+                await socket.send(json.dumps({
+                    'signal': 'health_check',
+                    'value': {
+                        'sender': self.sender.hc,
+                        'receiver': self.receiver.hc,
+                    },
+                }))
             if (interval - last_interval) > 2:
                 last_interval = interval
                 print('Playing game for %.4f seconds' % (interval))
@@ -125,7 +139,7 @@ class ToninasGame:
                 self._compute_retry = 0
         else:
             try:
-                received_string = self.receiver.receive()
+                received_string = self.receiver.receive("$status:1;")
                 if received_string == 'Err':
                     print('Error')
                 else:
