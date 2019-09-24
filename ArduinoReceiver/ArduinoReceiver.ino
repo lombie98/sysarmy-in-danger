@@ -10,14 +10,14 @@ int TIMER_NANOSECONDS = 500;
 
 int inputsQty;
 bool inputConnState[maxInputs];
-int inputChannels[maxInputs]; 
+int inputChannels[maxInputs];
 int inputs[maxInputs];
 int testing_inputs[8] = {22, 24, 26, 28, 30, 32, 34, 36};
 
 // Arduino Mega PinMap (Leftmost 32 pin cluster)
 int inputArray[maxInputs] = {
-  22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52,
-  23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53
+    22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52,
+    23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53
 };
 
 struct state_struct {
@@ -33,11 +33,12 @@ bool qty_done = false;
 bool pos_array_done = false;
 bool game_started = false;
 
+bool healthCheck = false;
+
 char stateString[maxInputs] = {'\0'};
 int statusCounter = 0;
 
 void setup() {
-    
     Wire.begin(SLAVE_ADDRESS);
     Wire.setClock(400000);
     Wire.onReceive(receiveData);
@@ -81,7 +82,15 @@ void start_game() {
 }
 
 void sendData() {
-    if (game_started) {
+    char hc = 'N';
+    if (healthCheck) {
+        if (game_started) {
+            hc = 'Y';
+        }
+        Wire.write(hc);
+        healthCheck = false;
+    }
+    else if (game_started) {
         Wire.write(stateString[statusCounter]);
         statusCounter++;
         if (statusCounter > inputsQty) {
@@ -105,6 +114,9 @@ void _process_received_command(char *command) {
     if (!strcmp(directive, "status")) {
         statusCounter = 0;
     }
+    else if (!strcmp(directive, "health_check")) {
+        healthCheck = true;
+    }
     else if (!strcmp(directive, "restart")) {
         qty_done = false;
         game_started = false;
@@ -118,9 +130,9 @@ void _process_received_command(char *command) {
     else if (!strcmp(directive, "pos")) {
         int ii = 0;
         while( strtokIndx != NULL && ii < maxInputs ) {
-          strtokIndx = strtok(NULL, ",");
-          inputs[ii] = inputArray[atoi(strtokIndx)];
-          ii++;
+            strtokIndx = strtok(NULL, ",");
+            inputs[ii] = inputArray[atoi(strtokIndx)];
+            ii++;
         }
         pos_array_done = true;
     }
@@ -151,7 +163,7 @@ bool _match_input(int pin, state_struct &state, int ticks) {
         state.Low ++;
     }
     if (state.High > 2000) {
-        state.High = 0; 
+        state.High = 0;
     }
     if (state.Low > 2000) {
         state.Low = 0;

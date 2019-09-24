@@ -16,18 +16,21 @@ int testing_outputs[8] = {22,24,26,28,30,32,34,36};
 
 // Arduino Mega PinMap (Leftmost 32 pin cluster)
 int outputArray[maxOutputs] = {
-  22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52,
-  23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53
+    22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52,
+    23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53
 };
 
 bool qty_done = false;
 bool pos_array_done = false;
 bool game_started = false;
 
+bool healthCheck = false;
+
 void setup() {
     Wire.begin(SLAVE_ADDRESS);
     Wire.setClock(400000);
     Wire.onReceive(receiveData);
+    Wire.onRequest(sendData);
 
     // Init Timer
     Timer1.initialize(TIMER_NANOSECONDS);
@@ -54,6 +57,17 @@ void start_game() {
     game_started = true;
 }
 
+void sendData() {
+    char hc = 'N';
+    if (healthCheck) {
+        if (game_started) {
+            hc = 'Y';
+        }
+        Wire.write(hc);
+        healthCheck = false;
+    }
+}
+
 bool _process_received_command(char *command) {
     char * strtokIndx; // this is used by strtok() as an index
     char directive[16];
@@ -64,6 +78,9 @@ bool _process_received_command(char *command) {
         outputsQty = atoi(strtokIndx);
         qty_done = true;
     }
+    else if (!strcmp(directive, "health_check")) {
+        healthCheck = true;
+    }
     else if (!strcmp(directive, "restart")) {
         qty_done = false;
         game_started = false;
@@ -72,9 +89,9 @@ bool _process_received_command(char *command) {
     else if (!strcmp(directive, "pos")) {
         int ii = 0;
         while( strtokIndx != NULL && ii < maxOutputs ) {
-          strtokIndx = strtok(NULL, ",");
-          outputs[ii] = outputArray[atoi(strtokIndx)];
-          ii++;
+            strtokIndx = strtok(NULL, ",");
+            outputs[ii] = outputArray[atoi(strtokIndx)];
+            ii++;
         }
         pos_array_done = true;
     }
