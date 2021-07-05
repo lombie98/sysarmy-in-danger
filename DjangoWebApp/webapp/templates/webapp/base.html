@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="h-100">
+    <head>
+        {% block head %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>{% block title %}Vacaciones en Las Toninas!{% endblock title %}</title>
+        {% block css %}
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" type="text/css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="{% static 'webapp/css/base.css' %}" type="text/css">
+        {% endblock css %}
+        {% block js %}
+        <script
+          src="https://code.jquery.com/jquery-3.4.1.js"
+          integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+          crossorigin="anonymous"></script>
+        <script
+          src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"
+          crossorigin="anonymous"></script>
+        {% endblock js %}
+        {% endblock head %}
+    </head>
+    <body class="d-flex flex-column h-100">
+        {% block body %}
+        <header>
+        {% block navbar %}
+        <nav class="navbar navbar-dark navbar-expand-lg bg-dark">
+          <a class="navbar-brand" href="/">Toninas</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+            {% block menu %}
+              <li class="nav-item active">
+                <a class="nav-link" href="/">Casucha<span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item active">
+                  <a class="nav-link" href="scoreboard">Posiciones<span class="sr-only">(current)</span></a>
+              </li>
+            {% endblock menu %}
+            </ul>
+          </div>
+        </nav>
+        {% endblock navbar %}
+        </header>
+        {% block main %}
+        <main class="flex-shrink-0">
+            <div class="container">
+                {% block maincontainer %}
+                {% endblock maincontainer %}
+            </div>
+        </main>
+        {% endblock main %}
+        {% block footer %}
+        <footer class="footer mt-auto py-3">
+            <div class="container">
+                <span>Vacaciones en las Toninas - SysArmy</span>
+            </div>
+        </footer>
+        {% endblock footer %}
+        {% endblock body %}
+    </body>
+</html>
